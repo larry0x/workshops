@@ -382,12 +382,12 @@ simd tx staking create-validator \
   --commission-rate "0.05" \
   --commission-max-rate "0.20" \
   --commission-max-change-rate "0.01" \
-  --amount 1000000ucoin \
+  --amount 1000000stake \
   --from validator \
   --chain-id sim-1 \
   --gas auto \
   --gas-adjustment 1.4 \
-  --gas-prices 0ucoin
+  --gas-prices 0stake
 ```
 
 A few notable flags:
