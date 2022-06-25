@@ -63,8 +63,8 @@ sudo apt autoremove
 Install the Go programming language...
 
 ```bash
-curl -LO https://golang.org/dl/go1.18.1.linux-amd64.tar.gz
-tar xfz ./go1.18.1.linux-amd64.tar.gz
+curl -LO https://golang.org/dl/go1.18.3.linux-amd64.tar.gz
+tar xfz ./go1.18.3.linux-amd64.tar.gz
 sudo mv go /usr/local
 go version
 ```
