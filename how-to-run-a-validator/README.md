@@ -2,11 +2,11 @@
 
 # How to run a validator for Cosmos chains
 
-In this workshop session, we will setup and validate a real blockchain using [simapp](https://github.com/cosmos/cosmos-sdk/tree/v0.45.4/simapp), a blockchain app included in the [Cosmos SDK repository]() for education purpose.
+In this workshop session, we will setup and validate a real blockchain using [simapp](https://github.com/cosmos/cosmos-sdk/tree/v0.45.4/simapp), a blockchain app included in the [Cosmos SDK repository](https://github.com/cosmos/cosmos-sdk) for education purpose.
 
-We will cover the fundamentals that apply to every Cosmos chain; however, some chains also have their chain-specific requirements. E.g. [Terra]() requires validators also submit oracle feed; [THORChain]() and [Axelar]() require validators run full nodes of several other blockchains. **Make sure to refer to the docs of the chain you want to validate for its chain-specific requirements.**
+We will cover the fundamentals that apply to every Cosmos chain; however, some chains also have their chain-specific requirements. E.g. [Terra](https://twitter.com/terra_money) requires validators also submit oracle feed; [Axelar](https://twitter.com/axelarcore) require validators run full nodes of several other blockchains. **Make sure to refer to the docs of the chain you want to validate for its chain-specific requirements.**
 
-Use of hardware security modules (HSMs) or multi-party computing (MPC) signer programs such as [Horcrux]() are recommended but out of the scope of this session.
+Use of hardware security modules (HSMs) or multi-party computing (MPC) signer programs such as [Horcrux](https://github.com/strangelove-ventures/horcrux) are recommended but out of the scope of this session.
 
 ## Prerequisites
 
@@ -14,7 +14,7 @@ Since our chain only has minimal functionalities and is absent any actual user t
 
 A _production-ready_ server for chains like Terra or Osmosis, however, typically requires:
 
-- **8-core x86 CPU.** Cosmos apps do compile on ARM chips (e.g. Apple's M1 processor) but the reliabiliy is not battle-tested. Notably, chains that incorporate the [CosmWasm]() module [won't even compile](https://github.com/CosmWasm/wasmvm#builds-of-libwasmvm) on ARM servers.
+- **8-core x86 CPU.** Cosmos apps do compile on ARM chips (e.g. Apple's M1 processor) but the reliabiliy is not battle-tested. Notably, chains that incorporate the [CosmWasm](https://cosmwasm.com/) module [won't even compile](https://github.com/CosmWasm/wasmvm#builds-of-libwasmvm) on ARM servers.
 - **64 GB RAM.** Cosmos apps typically use less than 32 GB under normal conditions, but during events such as chain upgrades, up to 64 GB is usually needed.
 - **4 TB NVME SSD.** _Hard drive I/O speed is crucial!_ Validators who run on HDD or SATA SSD often find themselves missing blocks. Requirement on disk space depends on the chain and your pruning settings (more on this later) but generally at least 2 TB is recommended. Ask your fellow validators what's their disk usage.
 - **Linux operating system.** no windows allowed :)
@@ -101,7 +101,7 @@ simd keys show validator
 Run this command creates your consensus key, node key, as well as some config files for your node:
 
 ```bash
-simd init yourmoniker
+simd init yourmoniker --chain-id sim-1
 ```
 
 Replace `yourmoniker` with any string your like. This is a name to identify your server. This is NOT your validator's moniker, which we will create later. It may be a good practice to not include any personally identifying info in this moniker for security reasons.
@@ -164,7 +164,7 @@ Firstly, `simd` uses a number of ports for P2P communications. In general these 
 priv_validator_laddr = ""
 ```
 
-Unless you plan to use an external signing program such as [tmkms]() or [horcrux](), this one can be left empty. If you do use such a program, Tendermint will use this port to communicate with the program. For example, Horcrux uses `tcp://0.0.0.0:1234` by default.
+Unless you plan to use an external signing program such as [tmkms](https://github.com/tendermint/tmkms) or [horcrux](https://github.com/strangelove-ventures/horcrux/releases), this one can be left empty. If you do use such a program, Tendermint will use this port to communicate with the program. For example, Horcrux uses `tcp://0.0.0.0:1234` by default.
 
 ```toml
 moniker = "yourmoniker"
@@ -185,7 +185,7 @@ Persistent peers are peers that you want to manually establish & maintain connec
 Moving on to `app.toml`:
 
 ```toml
-minimum-gas-prices = "0ucoin"
+minimum-gas-prices = "0stake"
 ```
 
 While Ethereum users discover gas prices by bidding in a fee market, in Cosmos each node defines a fixed "minimum gas prices". Upon receiving a tx from its peers, the node will add the tx to its mempool is the tx pays a fee higher than its minimum gas prices, or discard the tx if otherwise.
@@ -215,7 +215,7 @@ NOTE: In order to use `--gas auto` when sending txs, one of API or gRPC must be 
 
 ## Create genesis state
 
-> If you are joining an existing chain, the dev team should have made the `genesis.json` available for download. E.g. [here]() for Terra and [here]() for Osmosis mainnets.
+> If you are joining an existing chain, the dev team should have made the `genesis.json` available for download. E.g. [here](https://github.com/terra-money/mainnet) for Terra and [here](https://github.com/osmosis-labs/networks) for Osmosis mainnets.
 >
 > If you are a participant of this workshop, you should email your validator pubkey and operator address to [larry](mailto:gm@larry.engineer) so that he can create the `genesis.json` and distribute it to participants. Get the file created by larry and overwrite your local `~/.simapp/config/genesis.json`.
 >
@@ -224,17 +224,15 @@ NOTE: In order to use `--gas auto` when sending txs, one of API or gRPC must be 
 First, for each genesis account:
 
 ```bash
-simd add-genesis-account sim1... 123456ucoin  # specify the address and initial coin balance
+simd add-genesis-account sim1... 123456stake  # specify the address and initial coin balance
 ```
 
-This creates a record for the account in the auth module (which will verify txs signed by this account) and the bank module (which manages its coin balances).
-
-In the above example we assign the account a balance of `123456ucoin`, where 123456 is the amount, and `ucoin` is the coin's denomination or "denom". Most Cosmos chains use 6 decimal places for their coins (in contrast to Ethereum, which uses 18 decimal places). Therefore the denom is typically the coin's symbol prepended with the letter "u", which reads "micro" meaning 1-millionth of a coin. In our case, `123456ucoin` means 0.123456 of a $COIN.
+This creates a record for the account in the auth module (which will verify txs signed by this account) and the bank module (which manages its coin balances). In this example we assign the account a balance of `123456stake`, where 123456 is the amount, and `stake` is the coin's denomination or "denom".
 
 The network needs to have at least one genesis validator. To create a genesis validator:
 
 ```bash
-osmosisd gentx my-key-name 1000000ucoin \
+simd gentx my-key-name 1000000stake \
   --chain-id sim-1 \
   --moniker myvalidator \
   --identity "..." \
@@ -334,7 +332,7 @@ The output should include the following data (only fields relevant to our discus
 {
   "NodeInfo": {
     "id": "e1f44e704271db4a18e48ffd24ae64361d2c51be", // derived from node_key.json
-    "moniker": "osmosis-mainnet-signer-1",            // defined in config.toml
+    "moniker": "yourmoniker",                         // defined in config.toml
   },
   "SyncInfo": {
     "latest_block_height": "4834328",
@@ -342,9 +340,9 @@ The output should include the following data (only fields relevant to our discus
     "catching_up": false // important
   },
   "ValidatorInfo": {
-    "Address": "...",  // derived from priv_validator_key.json
-    "PubKey": { ... }, // same as above
-    "VotingPower": "0" // zero if the node is not a validator
+    "Address": "...",    // derived from priv_validator_key.json
+    "PubKey": { ... },   // same as above
+    "VotingPower": "0"   // zero if the node is not a validator
   }
 }
 ```
