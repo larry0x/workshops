@@ -1,4 +1,22 @@
 ![lets-validate](./lets-validate-1500x500.png)
+<table>
+<tbody>
+  <tr>
+    <td>event</td>
+    <td>
+      <a href="https://twitter.com/SparkIBC" target="_blank" rel="noopener noreferrer">SparkIBC</a>
+    </td>
+  </tr>
+  <tr>
+    <td>time</td>
+    <td>June 25, 2022, 2:00 pm EST</td>
+  </tr>
+  <tr>
+    <td>recording</td>
+    <td>TBD</td>
+  </tr>
+</tbody>
+</table>
 
 # How to run a validator for Cosmos chains
 
