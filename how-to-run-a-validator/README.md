@@ -81,12 +81,12 @@ export PATH=$PATH:$GOPATH/bin:$GOROOT/bin
 
 ## Compile the Cosmos app daemon
 
-Download Cosmos SDK source code and checkout to the latest stable release, which in our case in `v0.45.4`:
+Download Cosmos SDK source code and checkout to the latest stable release, which in our case in `v0.45.5`:
 
 ```bash
 git clone https://github.com/cosmos/cosmos-sdk.git
 cd cosmos-sdk
-git checkout v0.45.4
+git checkout v0.45.5
 ```
 
 The command to compile the app is defined in `Makefile`. For most Cosmos apps it is `make install`, which will generate an executable in your `$GOBIN` folder. For simapp though, the command is `make build` which will produce an executable named `simd` (short for "sim daemon") under `./build`. We manually move this file to our `$GOBIN`:
