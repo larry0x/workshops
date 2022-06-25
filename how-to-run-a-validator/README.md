@@ -93,6 +93,7 @@ The command to compile the app is defined in `Makefile`. For most Cosmos apps it
 
 ```bash
 make build
+mkdir -p $GOBIN # create GOBIN folder if it does not already exist
 mv ./build/simd $GOBIN
 simd version
 ```
